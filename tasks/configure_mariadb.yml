@@ -1,0 +1,52 @@
+---
+- name: Démarrer MariaDB (pas systemd)
+  shell: "{{ mariadb_start_command }}"
+  async: 0
+  poll: 0
+  changed_when: false
+
+- name: Pause pour laisser MariaDB démarrer
+  pause:
+    seconds: 10
+
+- name: Définir mot de passe root MariaDB si pas encore défini
+  community.mysql.mysql_user:
+    user: root
+    password: "{{ new_mysql_root_password }}"
+    host: localhost
+    login_unix_socket: /var/lib/mysql/mysql.sock
+    check_implicit_admin: true
+    state: present
+  become: true
+
+- name: Sécuriser MariaDB en supprimant utilisateurs anonymes et base test
+  mysql_user:
+    login_user: root
+    login_password: "{{ mariadb_root_password }}"
+    name: ""
+    host_all: yes
+    state: absent
+
+- name: Supprimer base test
+  mysql_db:
+    login_user: root
+    login_password: "{{ mariadb_root_password }}"
+    name: test
+    state: absent
+
+- name: Créer base WordPress
+  mysql_db:
+    login_user: root
+    login_password: "{{ mariadb_root_password }}"
+    name: "{{ wordpress_db_name }}"
+    state: present
+
+- name: Créer utilisateur WordPress
+  mysql_user:
+    login_user: root
+    login_password: "{{ mariadb_root_password }}"
+    name: "{{ wordpress_db_user }}"
+    password: "{{ wordpress_db_password }}"
+    priv: "{{ wordpress_db_name }}.*:ALL"
+    host: localhost
+    state: present

@@ -1,0 +1,35 @@
+---
+- name: Mettre à jour cache paquets (Debian)
+  apt:
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Installer paquets Ubuntu
+  apt:
+    name:
+      - apache2
+      - php
+      - libapache2-mod-php
+      - php-mysql
+      - mariadb-server
+      - wget
+      - unzip
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Installer paquets Rocky Linux
+  dnf:
+    name:
+      - httpd
+      - php
+      - php-mysqlnd
+      - mariadb-server
+      - wget
+      - unzip
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Supprimer page Apache par défaut
+  file:
+    path: "{{ wordpress_web_root }}/index.html"
+    state: absent

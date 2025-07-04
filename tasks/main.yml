@@ -1,0 +1,12 @@
+---
+- name: Installer paquets nécessaires
+  import_tasks: install_packages.yml
+
+- name: Démarrer MariaDB
+  import_tasks: configure_mariadb.yml
+
+- name: Déployer WordPress
+  import_tasks: deploy_wordpress.yml
+
+- name: Configurer Apache
+  import_tasks: configure_apache.yml

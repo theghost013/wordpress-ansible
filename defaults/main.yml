@@ -1,0 +1,23 @@
+---
+# MDP root MariaDB
+mariadb_root_password: "examplerootPW"
+
+# Base WordPress
+wordpress_db_name: "wordpress"
+wordpress_db_user: "example"
+wordpress_db_password: "examplePW"
+
+# URL WordPress
+wordpress_download_url: "https://wordpress.org/latest.zip"
+
+# Répertoire web root (pour Ubuntu et Rocky)
+wordpress_web_root: "/var/www/html"
+
+# Apache service name par OS
+apache_service_name: "{{ 'apache2' if ansible_os_family == 'Debian' else 'httpd' }}"
+
+# User et groupe web (www-data pour Debian, apache pour RedHat)
+web_user: "{{ 'www-data' if ansible_os_family == 'Debian' else 'apache' }}"
+
+# Commande démarrage MariaDB (mysqld_safe)
+mariadb_start_command: "mysqld_safe --datadir=/var/lib/mysql &"

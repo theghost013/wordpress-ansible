@@ -1,0 +1,36 @@
+---
+- name: Télécharger WordPress
+  get_url:
+    url: "{{ wordpress_download_url }}"
+    dest: /tmp/latest.zip
+    mode: "0644"
+
+- name: Décompresser WordPress
+  unarchive:
+    src: /tmp/latest.zip
+    dest: /tmp
+    remote_src: yes
+    creates: /tmp/wordpress
+
+- name: Copier fichiers WordPress dans le web root
+  copy:
+    remote_src: yes
+    src: /tmp/wordpress/
+    dest: "{{ wordpress_web_root }}/"
+    owner: "{{ web_user }}"
+    group: "{{ web_user }}"
+    mode: "0755"
+  notify: Reload apache
+
+- name: Copier wp-config.php
+  template:
+    src: wp-config.php.j2
+    dest: "{{ wordpress_web_root }}/wp-config.php"
+    owner: "{{ web_user }}"
+    group: "{{ web_user }}"
+    mode: "0640"
+
+- name: Supprimer le fichier wp-config-sample.php si existant
+  file:
+    path: "{{ wordpress_web_root }}/wp-config-sample.php"
+    state: absent

@@ -1,0 +1,37 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Variables spécifiques par distribution
+_packages_ubuntu:
+  - apache2
+  - php
+  - libapache2-mod-php
+  - php-mysql
+  - mariadb-server
+  - wget
+  - unzip
+  - python3-pymysql
+
+_packages_rocky:
+  - httpd
+  - php
+  - php-mysqlnd
+  - mariadb-server
+  - wget
+  - unzip
+  - python3-PyMySQL
+
+_service_names_ubuntu:
+  web_server: apache2
+  database: mariadb
+
+_service_names_rocky:
+  web_server: httpd
+  database: mariadb
+
+# Configuration par OS
+packages: "{{ _packages_ubuntu if ansible_os_family == 'Debian' else _packages_rocky }}"
+service_names: "{{ _service_names_ubuntu if ansible_os_family == 'Debian' else _service_names_rocky }}"
+
+web_server_config_dir: "{{ '/etc/apache2/sites-available' if ansible_os_family == 'Debian' else '/etc/httpd/conf.d' }}"
+web_server_user: "{{ 'www-data' if ansible_os_family == 'Debian' else 'apache' }}"
+web_server_group: "{{ 'www-data' if ansible_os_family == 'Debian' else 'apache' }}"
