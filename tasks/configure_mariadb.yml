@@ -9,15 +9,30 @@
   pause:
     seconds: 10
 
-- name: Définir mot de passe root MariaDB si pas encore défini
-  community.mysql.mysql_user:
+- name: Tester si root a un mot de passe défini (connexion via socket sans mot de passe)
+  shell: >
+    mysql --protocol=socket -uroot --socket=/run/mysqld/mysqld.sock -e "SELECT 1;"
+  register: root_pass_check
+  ignore_errors: true
+  changed_when: false
+
+- name: Configurer le mot de passe root MariaDB (Debian/Ubuntu)
+  mysql_user:
+    login_unix_socket: /run/mysqld/mysqld.sock
     user: root
-    password: "{{ new_mysql_root_password }}"
+    password: "{{ mariadb_root_password }}"
     host: localhost
-    login_unix_socket: /var/lib/mysql/mysql.sock
-    check_implicit_admin: true
-    state: present
   become: true
+  when: root_pass_check.rc == 0 and ansible_os_family == "Debian"
+
+- name: Configurer le mot de passe root MariaDB (Rocky Linux)
+  mysql_user:
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    user: root
+    password: "{{ mariadb_root_password }}"
+    host: localhost
+  become: true
+  when: ansible_os_family == "RedHat"
 
 - name: Sécuriser MariaDB en supprimant utilisateurs anonymes et base test
   mysql_user:
@@ -27,11 +42,19 @@
     host_all: yes
     state: absent
 
-- name: Supprimer base test
+- name: Supprimer les utilisateurs anonymes
+  mysql_user:
+    login_user: root
+    login_password: "{{ mariadb_root_password }}"
+    user: ""
+    host_all: true
+    state: absent
+
+- name: Supprimer la base de test par défaut
   mysql_db:
     login_user: root
     login_password: "{{ mariadb_root_password }}"
-    name: test
+    name: test`
     state: absent
 
 - name: Créer base WordPress

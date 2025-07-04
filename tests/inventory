@@ -1,3 +1,7 @@
-#SPDX-License-Identifier: MIT-0
-localhost
+[ubuntu]
+client1 ansible_user=root
+client2 ansible_user=root
 
+[rocky]
+client3 ansible_user=root
+client4 ansible_user=root

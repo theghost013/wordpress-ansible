@@ -1,6 +1,20 @@
-#SPDX-License-Identifier: MIT-0
 ---
-- hosts: localhost
-  remote_user: root
-  roles:
-    - wordpress
+- hosts: all
+  become: yes
+  tasks:
+    - name: Installer dépendances Python MySQL sur Debian/Ubuntu
+      apt:
+        name: python3-pymysql
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Installer dépendances Python MySQL sur Rocky/CentOS
+      yum:
+        name: python3-PyMySQL
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    # Ensuite tu appelles ton rôle wordpress ou tes autres tâches...
+    - import_role:
+        name: wordpress

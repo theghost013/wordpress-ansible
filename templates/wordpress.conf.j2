@@ -1,0 +1,29 @@
+{% if ansible_os_family == 'Debian' %}
+<VirtualHost *:80>
+    ServerAdmin {{ apache_server_admin | default('webmaster@localhost') }}
+    DocumentRoot {{ apache_document_root }}
+
+    <Directory {{ apache_document_root }}>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/wordpress_error.log
+    CustomLog ${APACHE_LOG_DIR}/wordpress_access.log combined
+</VirtualHost>
+{% else %}
+<VirtualHost *:80>
+    ServerAdmin {{ apache_server_admin | default('webmaster@localhost') }}
+    DocumentRoot {{ apache_document_root }}
+
+    <Directory {{ apache_document_root }}>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog /var/log/httpd/wordpress_error.log
+    CustomLog /var/log/httpd/wordpress_access.log combined
+</VirtualHost>
+{% endif %}
